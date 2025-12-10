@@ -96,6 +96,10 @@ function ShowDetails() {
     }
   };
 
+  const handleBuyTicket = () => {
+    navigate(`/payment/${id}`);
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', {
@@ -149,6 +153,12 @@ function ShowDetails() {
         <div className="header-actions">
           {!isEditing && (
             <>
+              <button
+                className="btn-success"
+                onClick={handleBuyTicket}
+              >
+                Comprar Ingresso
+              </button>
               <button
                 className="btn-primary"
                 onClick={() => setIsEditing(true)}

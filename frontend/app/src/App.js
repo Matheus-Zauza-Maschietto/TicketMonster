@@ -8,6 +8,8 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Shows from './pages/Shows';
 import ShowDetails from './pages/ShowDetails';
+import Tickets from './pages/Tickets';
+import Payment from './pages/Payment';
 import './App.css';
 
 function App() {
@@ -28,7 +30,8 @@ function App() {
                       <Route path="/home" element={<Home />} />
                       <Route path="/shows" element={<Shows />} />
                       <Route path="/shows/:id" element={<ShowDetails />} />
-                      <Route path="/tickets" element={<div>Página de Ingressos - Em construção</div>} />
+                      <Route path="/tickets" element={<Tickets />} />
+                      <Route path="/payment/:showId" element={<Payment />} />
                       <Route path="/" element={<Navigate to="/shows" replace />} />
                     </Routes>
                   </main>

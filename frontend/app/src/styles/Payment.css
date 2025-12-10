@@ -1,0 +1,56 @@
+.payment-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.payment-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.payment-content h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #333;
+}
+
+.error-message {
+  text-align: center;
+}
+
+.error-message p {
+  color: #d32f2f;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.error-message button {
+  background-color: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.error-message button:hover {
+  background-color: #5568d3;
+}
+
+.payment-loading {
+  text-align: center;
+  padding: 40px;
+  color: white;
+}
