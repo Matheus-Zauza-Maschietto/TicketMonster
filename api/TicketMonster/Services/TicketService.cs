@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TicketMonster.Domain;
+using TicketMonster.Domain.Enums;
 using TicketMonster.DTOs;
 using TicketMonster.Repositories;
 
@@ -8,10 +9,12 @@ namespace TicketMonster.Services;
 public class TicketService
 {
     private readonly ApplicationDbContext _context;
+    private readonly PaymentService _paymentService;
 
-    public TicketService(ApplicationDbContext context)
+    public TicketService(ApplicationDbContext context, PaymentService paymentService)
     {
         _context = context;
+        _paymentService = paymentService;
     }
 
     public async Task<IEnumerable<TicketResponse>> GetAllAsync()
@@ -63,11 +66,15 @@ public class TicketService
         ShowEntity? show = await _context.Shows.FindAsync(request.ShowId);
         if (show == null) throw new Exception("Show not found");
 
-
+        int ticketQuantity = await _context.Tickets.CountAsync(t => t.ShowId == show.Id && t.Payment.Status == PaymentStatus.Completed || (t.Payment.Status == PaymentStatus.Pending && t.Payment.ExpirationDate > DateTime.UtcNow));
+        if (ticketQuantity >= show.MaxTicketQuantity) throw new Exception("Show is full");
 
         var ticket = new TicketEntity(user, show);
 
         _context.Tickets.Add(ticket);
+
+        await _paymentService.CreatePaymentIntentAsync(ticket.Payment);
+
         await _context.SaveChangesAsync();
 
         return new TicketResponse(
@@ -81,10 +88,13 @@ public class TicketService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var ticket = await _context.Tickets.FindAsync(id);
+        var ticket = await _context.Tickets.Include(p => p.Payment).FirstOrDefaultAsync(t => t.Id == id);
         if (ticket == null) return false;
 
+        ticket.Payment.MarkAsFailed();
+
         _context.Tickets.Remove(ticket);
+
         await _context.SaveChangesAsync();
 
         return true;

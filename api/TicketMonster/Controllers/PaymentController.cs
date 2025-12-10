@@ -25,7 +25,7 @@ public class PaymentController : ControllerBase
             await _paymentService.ValidatePaymentWebhookAsync(json, Request.Headers?["Stripe-Signature"] ?? throw new InvalidOperationException("Signature header missing"));
             return Ok();
         }
-        catch (Exception e)
+        catch
         {
             return BadRequest();
         }

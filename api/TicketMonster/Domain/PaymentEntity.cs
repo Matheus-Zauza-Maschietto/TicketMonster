@@ -12,6 +12,7 @@ public sealed class PaymentEntity
         private set => ValueInCents = (int)(value * 100);
     }
     public DateTime CreationDate { get; private set; }  
+    public DateTime ExpirationDate { get; private set; }
     public PaymentStatus Status { get; private set; }
     public TicketEntity Ticket { get; private set; }
     public Guid TicketId { get; private set; }
@@ -22,6 +23,7 @@ public sealed class PaymentEntity
     {
         Id = Guid.NewGuid();
         CreationDate = DateTime.UtcNow;
+        ExpirationDate = CreationDate.AddMinutes(15);
         Status = PaymentStatus.Pending;
         Value = value;
         Ticket = ticket;

@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TicketMonster.Domain;
 using TicketMonster.Repositories;
@@ -35,6 +36,20 @@ public class PaymentService
         var service = new PaymentIntentService();
         PaymentIntent paymentIntent = await service.CreateAsync(options);
         return paymentIntent;
+    }
+
+    public async Task CancelExpiredPaymentsAsync()
+    {
+        var expiredPayments = await _context.Payments
+            .Where(p => p.Status == Domain.Enums.PaymentStatus.Pending && p.ExpirationDate <= DateTime.UtcNow)
+            .ToListAsync();
+
+        foreach (var payment in expiredPayments)
+        {
+            payment.MarkAsFailed();
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task ValidatePaymentWebhookAsync(string json, string sigHeader)

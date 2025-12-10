@@ -17,13 +17,6 @@ public class TicketsController : ControllerBase
         _ticketService = ticketService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<TicketResponse>>> GetAll()
-    {
-        var tickets = await _ticketService.GetAllAsync();
-        return Ok(tickets);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TicketResponse>> GetById(Guid id)
     {
@@ -33,7 +26,7 @@ public class TicketsController : ControllerBase
         return Ok(ticket);
     }
 
-    [HttpGet("my-tickets")]
+    [HttpGet]
     [Authorize]
     public async Task<ActionResult<IEnumerable<TicketResponse>>> GetMyTickets()
     {

@@ -1,8 +1,7 @@
 namespace TicketMonster.DTOs;
 
 public record CreateTicketRequest(
-    Guid ShowId,
-    Guid PaymentId
+    Guid ShowId
 );
 
 public record UpdateTicketRequest(
