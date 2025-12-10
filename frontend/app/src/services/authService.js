@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Adicionar token de autenticação nas requisições
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
@@ -33,7 +32,7 @@ export const authService = {
 
   login: async (email, password) => {
     try {
-      const response = await api.post('/login?useCookies=true&useSessionCookies=true', { email, password });
+      const response = await api.post('/login?useCookies=false&useSessionCookies=false', { email, password });
       if (response.data.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);

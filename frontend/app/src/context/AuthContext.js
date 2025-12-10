@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useCallback } from 'react';
+import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
 import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
@@ -15,9 +15,25 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return authService.isAuthenticated();
   });
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'accessToken') {
+        setIsAuthenticated(authService.isAuthenticated());
+        const savedUser = localStorage.getItem('user');
+        setUser(savedUser ? JSON.parse(savedUser) : null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const register = useCallback(async (email, password) => {
     setLoading(true);
@@ -38,7 +54,9 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await authService.login(email, password);
-      setUser({ email });
+      const userData = { email };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
       setIsAuthenticated(true);
       return response;
     } catch (err) {
@@ -51,6 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     authService.logout();
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
   }, []);

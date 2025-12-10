@@ -15,10 +15,8 @@ const Login = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Mostrar mensagem de sucesso do cadastro, se houver
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
-      // Limpar a mensagem da URL após exibir
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -28,7 +26,6 @@ const Login = () => {
     setLocalError('');
     setSuccessMessage('');
 
-    // Validações
     if (!email || !password) {
       setLocalError('Email e senha são obrigatórios');
       return;
@@ -37,7 +34,6 @@ const Login = () => {
     setLocalLoading(true);
     try {
       await login(email, password);
-      // Redirecionar para home após sucesso
       navigate('/home');
     } catch (err) {
       setLocalError(err.message || 'Erro ao fazer login');
