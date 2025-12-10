@@ -17,7 +17,6 @@ const Register = () => {
     e.preventDefault();
     setLocalError('');
 
-    // Validações
     if (!email || !password || !confirmPassword) {
       setLocalError('Todos os campos são obrigatórios');
       return;
@@ -36,7 +35,6 @@ const Register = () => {
     setLocalLoading(true);
     try {
       await register(email, password);
-      // Redirecionar para login após sucesso
       navigate('/login', { state: { message: 'Cadastro realizado com sucesso! Faça login para continuar.' } });
     } catch (err) {
       setLocalError(err.message || 'Erro ao registrar');

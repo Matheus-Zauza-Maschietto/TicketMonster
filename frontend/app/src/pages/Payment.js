@@ -7,7 +7,7 @@ import {
 } from '@stripe/react-stripe-js';
 import '../styles/Payment.css';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || '');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || 'pk_test_51ScvBuI9Cljh3iELZQa6ysLHfsPYgmxU3jZkLb9NSENlW7zjPTlVSgt9hDx238DoWnZhZAS8qb6g6DyIxAWKJ1Wn00KAYJh5Hs');
 
 export default function Payment() {
   const navigate = useNavigate();

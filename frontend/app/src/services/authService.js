@@ -23,7 +23,7 @@ api.interceptors.request.use(
 export const authService = {
   register: async (email, password) => {
     try {
-      const response = await api.post('/register', { email, password });
+      const response = await api.post('/api/auth/register', { email, password });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -32,7 +32,7 @@ export const authService = {
 
   login: async (email, password) => {
     try {
-      const response = await api.post('/login?useCookies=false&useSessionCookies=false', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
       if (response.data.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);

@@ -2,6 +2,11 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5125/api';
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('accessToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const showService = {
   getAllShows: async () => {
     try {
@@ -29,6 +34,8 @@ const showService = {
         singer: showData.singer,
         presentationDate: showData.presentationDate,
         maxTicketQuantity: parseInt(showData.maxTicketQuantity),
+      }, {
+        headers: getAuthHeader(),
       });
       return response.data;
     } catch (error) {

@@ -19,8 +19,27 @@ export const AuthProvider = ({ children }) => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Verificar autenticação ao montar o componente (ao recarregar a página)
+  useEffect(() => {
+    const initializeAuth = () => {
+      const token = localStorage.getItem('accessToken');
+      const savedUser = localStorage.getItem('user');
+      
+      if (token && savedUser) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(savedUser));
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
+  }, []);
 
   useEffect(() => {
     const handleStorageChange = (e) => {
