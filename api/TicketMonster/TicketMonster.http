@@ -1,6 +1,52 @@
-@TicketMonster_HostAddress = http://localhost:5125
+@TicketMonster_HostAddress = https://localhost:5001
 
-GET {{TicketMonster_HostAddress}}/weatherforecast/
-Accept: application/json
+### Login (obter token)
+POST {{TicketMonster_HostAddress}}/api/auth/login
+Content-Type: application/json
 
-###
+{
+  "email": "admin@ticketmonster.com",
+  "password": "AdminPassword123!"
+}
+
+### Criar novo usuário (sem autenticação - público)
+POST {{TicketMonster_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "userName": "joao",
+  "password": "Password123!",
+  "firstName": "João",
+  "lastName": "Silva",
+  "roles": ["User"]
+}
+
+### Listar todos os usuários (requer token)
+GET {{TicketMonster_HostAddress}}/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Obter usuário por ID (requer token)
+GET {{TicketMonster_HostAddress}}/api/users/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Obter usuário por email (requer token)
+GET {{TicketMonster_HostAddress}}/api/users/email/joao@example.com
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### Atualizar usuário (requer token de Admin)
+PUT {{TicketMonster_HostAddress}}/api/users/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+{
+  "email": "joao.novo@example.com",
+  "firstName": "João",
+  "lastName": "Silva Santos",
+  "isActive": true,
+  "roles": ["User", "Moderator"]
+}
+
+### Deletar usuário (requer token de Admin)
+DELETE {{TicketMonster_HostAddress}}/api/users/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
