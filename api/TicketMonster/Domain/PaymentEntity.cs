@@ -3,12 +3,39 @@ using TicketMonster.Domain.Enums;
 
 namespace TicketMonster.Domain;
 
-public class PaymentEntity
+public sealed class PaymentEntity
 {
-    public Guid Id { get; set; }
-    public decimal Value { get; set; }
-    public DateTime CreationDate { get; set; }  
-    public PaymentStatus Status { get; set; }
-    public TicketEntity Ticket { get; set; }
-    public Guid TicketId { get; set; }
+    public Guid Id { get; private set; }
+    public int ValueInCents { get; private set; }
+    public decimal Value { 
+        get => ValueInCents / 100m; 
+        private set => ValueInCents = (int)(value * 100);
+    }
+    public DateTime CreationDate { get; private set; }  
+    public PaymentStatus Status { get; private set; }
+    public TicketEntity Ticket { get; private set; }
+    public Guid TicketId { get; private set; }
+
+    private PaymentEntity(){}
+
+    public PaymentEntity(decimal value, TicketEntity ticket)
+    {
+        Id = Guid.NewGuid();
+        CreationDate = DateTime.UtcNow;
+        Status = PaymentStatus.Pending;
+        Value = value;
+        Ticket = ticket;
+        TicketId = ticket.Id;
+    }   
+
+    public void MarkAsCompleted()
+    {
+        Status = PaymentStatus.Completed;
+    }
+
+    public void MarkAsFailed()
+    {
+        Status = PaymentStatus.Failed;
+    }
+
 }

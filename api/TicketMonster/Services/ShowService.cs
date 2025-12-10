@@ -47,16 +47,10 @@ public class ShowService
 
     public async Task<ShowResponse> CreateAsync(CreateShowRequest request, string userId)
     {
-        var show = new ShowEntity
-        {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            TicketPrice = request.TicketPrice,
-            Singer = request.Singer,
-            PresentationDate = request.PresentationDate,
-            MaxTicketQuantity = request.MaxTicketQuantity,
-            UserCreatorId = userId
-        };
+        UserEntity? user = await _context.Users.FindAsync(userId);
+        if (user == null) throw new Exception("User not found");
+
+        var show = new ShowEntity(request.Title, request.Singer, request.PresentationDate, request.MaxTicketQuantity, user);
 
         _context.Shows.Add(show);
         await _context.SaveChangesAsync();
@@ -77,11 +71,7 @@ public class ShowService
         var show = await _context.Shows.FindAsync(id);
         if (show == null) return null;
 
-        show.Title = request.Title;
-        show.TicketPrice = request.TicketPrice;
-        show.Singer = request.Singer;
-        show.PresentationDate = request.PresentationDate;
-        show.MaxTicketQuantity = request.MaxTicketQuantity;
+        show.UpdateDetails(request.Title, request.Singer, request.PresentationDate, request.MaxTicketQuantity);
 
         await _context.SaveChangesAsync();
 

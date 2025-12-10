@@ -106,7 +106,7 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity>
             entity.Property(p => p.Id)
                 .ValueGeneratedOnAdd();
 
-            entity.Property(p => p.Value)
+            entity.Property(p => p.ValueInCents)
                 .IsRequired()
                 .HasPrecision(18, 2);
 
