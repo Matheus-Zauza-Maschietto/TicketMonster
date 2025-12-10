@@ -15,6 +15,7 @@ public sealed class PaymentEntity
     public DateTime ExpirationDate { get; private set; }
     public PaymentStatus Status { get; private set; }
     public TicketEntity Ticket { get; private set; }
+    public string ClientSecret { get; private set; }
     public Guid TicketId { get; private set; }
 
     private PaymentEntity(){}
@@ -29,6 +30,14 @@ public sealed class PaymentEntity
         Ticket = ticket;
         TicketId = ticket.Id;
     }   
+
+    public void SetClientSecret(string clientSecret)
+    {
+        if(!string.IsNullOrEmpty(ClientSecret)) return;
+        if(string.IsNullOrEmpty(clientSecret)) throw new ArgumentException("Client secret cannot be null or empty");
+        
+        ClientSecret = clientSecret;
+    }
 
     public void MarkAsCompleted()
     {

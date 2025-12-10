@@ -17,22 +17,9 @@ public class TicketService
         _paymentService = paymentService;
     }
 
-    public async Task<IEnumerable<TicketResponse>> GetAllAsync()
-    {
-        return await _context.Tickets
-            .Select(t => new TicketResponse(
-                t.Id,
-                t.Code,
-                t.UserOwnerId,
-                t.ShowId,
-                t.PaymentId
-            ))
-            .ToListAsync();
-    }
-
     public async Task<TicketResponse?> GetByIdAsync(Guid id)
     {
-        var ticket = await _context.Tickets.FindAsync(id);
+        var ticket = await _context.Tickets.Include(p => p.Payment).FirstOrDefaultAsync(p => p.Id == id);
         if (ticket == null) return null;
 
         return new TicketResponse(
@@ -40,20 +27,25 @@ public class TicketService
             ticket.Code,
             ticket.UserOwnerId,
             ticket.ShowId,
-            ticket.PaymentId
+            ticket.PaymentId,
+            ticket.Payment.Status,
+            ticket.Payment.ClientSecret
         );
     }
 
     public async Task<IEnumerable<TicketResponse>> GetByUserIdAsync(string userId)
     {
         return await _context.Tickets
+            .Include(t => t.Payment)
             .Where(t => t.UserOwnerId == userId)
             .Select(t => new TicketResponse(
                 t.Id,
                 t.Code,
                 t.UserOwnerId,
                 t.ShowId,
-                t.PaymentId
+                t.PaymentId,
+                t.Payment.Status,
+                t.Payment.ClientSecret
             ))
             .ToListAsync();
     }
@@ -73,7 +65,7 @@ public class TicketService
 
         _context.Tickets.Add(ticket);
 
-        await _paymentService.CreatePaymentIntentAsync(ticket.Payment);
+        var paymentIntent = await _paymentService.CreatePaymentIntentAsync(ticket.Payment);
 
         await _context.SaveChangesAsync();
 
@@ -82,7 +74,9 @@ public class TicketService
             ticket.Code,
             ticket.UserOwnerId,
             ticket.ShowId,
-            ticket.PaymentId
+            ticket.PaymentId,
+            ticket.Payment.Status,
+            paymentIntent.ClientSecret
         );
     }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -10,44 +10,12 @@ import '../styles/Payment.css';
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || '');
 
 export default function Payment() {
-  const { showId } = useParams();
   const navigate = useNavigate();
-  const [clientSecret, setClientSecret] = useState('');
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const { showId } = useParams();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    // Create a payment intent on the server
-    const createPaymentIntent = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5125'}/api/Payment/create-intent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            showId: showId,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create payment intent');
-        }
-
-        const data = await response.json();
-        setClientSecret(data.clientSecret);
-      } catch (err) {
-        setError(err.message || 'An error occurred');
-        console.error('Payment Intent Error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    createPaymentIntent();
-  }, [showId]);
+  const clientSecret = location.state?.clientSecret;
 
   if (loading) {
     return <div className="payment-container"><p>Loading payment form...</p></div>;

@@ -1,5 +1,8 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TicketMonster.DTOs;
 using TicketMonster.Services;
 
 namespace TicketMonster.Controllers;
@@ -15,6 +18,17 @@ public class PaymentController : ControllerBase
         _paymentService = paymentService;
     }
 
+    [HttpGet()]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<PaymentResponse>>> GetMyPayments()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var payments = await _paymentService.GetUserPaymentsAsync(userId);
+        return Ok(payments);
+    }
+
     [HttpPost("webhook")]
     public async Task<IActionResult> StripeWebhook()
     {
@@ -22,7 +36,11 @@ public class PaymentController : ControllerBase
 
         try
         {
-            await _paymentService.ValidatePaymentWebhookAsync(json, Request.Headers?["Stripe-Signature"] ?? throw new InvalidOperationException("Signature header missing"));
+            var signature = Request.Headers["Stripe-Signature"].ToString();
+            if (string.IsNullOrEmpty(signature))
+                return BadRequest("Signature header missing");
+
+            await _paymentService.ValidatePaymentWebhookAsync(json, signature);
             return Ok();
         }
         catch

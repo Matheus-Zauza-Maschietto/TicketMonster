@@ -122,6 +122,9 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity>
                 .IsRequired()
                 .HasConversion<string>()
                 .HasMaxLength(20);
+
+            entity.Property(p => p.ClientSecret)
+                .IsRequired(false);
         });
     }
 }

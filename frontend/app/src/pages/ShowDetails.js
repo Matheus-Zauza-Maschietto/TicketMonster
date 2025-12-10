@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import showService from '../services/showService';
+import { ticketService } from '../services/ticketService';
 import '../styles/Shows.css';
 
 function ShowDetails() {
@@ -44,7 +45,6 @@ function ShowDetails() {
     e.preventDefault();
     setError('');
 
-    // Validações
     if (
       !formData.title ||
       !formData.singer ||
@@ -96,8 +96,14 @@ function ShowDetails() {
     }
   };
 
-  const handleBuyTicket = () => {
-    navigate(`/payment/${id}`);
+  const handleBuyTicket = async () => {
+    try {
+      const ticket = await ticketService.createTicket(id);
+      navigate(`/payment/${id}`, { state: { clientSecret: ticket.clientSecret } });
+    } catch (err) {
+      setError('Erro ao processar a compra. Tente novamente.');
+      console.error('Erro ao criar ticket:', err);
+    }
   };
 
   const formatDate = (dateString) => {

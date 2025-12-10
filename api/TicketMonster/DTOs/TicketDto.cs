@@ -1,3 +1,5 @@
+using TicketMonster.Domain.Enums;
+
 namespace TicketMonster.DTOs;
 
 public record CreateTicketRequest(
@@ -14,5 +16,7 @@ public record TicketResponse(
     Guid Code,
     string UserOwnerId,
     Guid ShowId,
-    Guid PaymentId
+    Guid PaymentId,
+    PaymentStatus PaymentStatus,
+    string ClientSecret
 );

@@ -2,6 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TicketMonster.Domain;
+using TicketMonster.DTOs;
 using TicketMonster.Repositories;
 
 namespace TicketMonster.Services;
@@ -15,6 +16,22 @@ public class PaymentService
         _context = context;
         _configuration = configuration;
         StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];    
+    }
+
+    public async Task<IEnumerable<PaymentResponse>> GetUserPaymentsAsync(string userId)
+    {
+        return await _context.Payments
+            .Where(p => p.Ticket.UserOwnerId == userId)
+            .Select(p => new PaymentResponse(
+                p.Id,
+                p.Value,
+                p.CreationDate,
+                p.ExpirationDate,
+                p.Status,
+                p.ClientSecret,
+                p.TicketId
+            ))
+            .ToListAsync();
     }
 
     public async Task<PaymentIntent> CreatePaymentIntentAsync(PaymentEntity payment)
@@ -35,6 +52,9 @@ public class PaymentService
         };
         var service = new PaymentIntentService();
         PaymentIntent paymentIntent = await service.CreateAsync(options);
+
+        payment.SetClientSecret(paymentIntent.ClientSecret ?? string.Empty);
+
         return paymentIntent;
     }
 
