@@ -19,11 +19,23 @@ builder.Services.AddScoped<ShowService>();
 builder.Services.AddScoped<TicketService>();
 builder.Services.AddScoped<PaymentService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", builder =>
+        builder
+            .WithOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost:5125")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+    );
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowReactApp");
 
 app.UseSwagger();
 app.UseSwaggerUI(); 
-app.UseHttpsRedirection();
 app.MapIdentityApi<UserEntity>();
 app.UseAuthentication();
 app.UseAuthorization();
