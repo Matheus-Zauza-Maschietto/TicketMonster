@@ -1,4 +1,5 @@
 using System;
+using MassTransit;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TicketMonster.Domain;
@@ -21,7 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<UserEntity>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
+        
         builder.Entity<UserEntity>(entity =>
         {
             entity.ToTable("Users");

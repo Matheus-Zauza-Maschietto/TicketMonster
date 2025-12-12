@@ -1,4 +1,5 @@
 using System;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using TicketMonster.Domain;
@@ -11,10 +12,15 @@ public class PaymentService
 {
     private readonly ApplicationDbContext _context;
     private readonly IConfiguration _configuration;
-    public PaymentService(IConfiguration configuration, ApplicationDbContext context)
+    private readonly IPublishEndpoint _publishEndpoint;
+    public PaymentService(
+        IConfiguration configuration, 
+        ApplicationDbContext context, 
+        IPublishEndpoint publishEndpoint)
     {
         _context = context;
         _configuration = configuration;
+        _publishEndpoint = publishEndpoint;
         StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];    
     }
 
@@ -76,14 +82,21 @@ public class PaymentService
     {
         var endpointSecret = _configuration["Stripe:WebhookSecret"];
 
-        Event stripeEvent = EventUtility.ConstructEvent(
+        Stripe.Event stripeEvent = EventUtility.ConstructEvent(
             json,
             sigHeader,
             endpointSecret
         );
 
         PaymentIntent paymentIntent = (PaymentIntent)stripeEvent.Data.Object;
-        if (!(paymentIntent.Metadata.TryGetValue("paymentId", out var paymentIdString) && Guid.TryParse(paymentIdString, out var paymentId)))
+
+        await _publishEndpoint.Publish((paymentIntent, stripeEvent));
+    }
+
+    public async Task ProcessPaymentAsync(StripeWebhookDTO webhook)
+    {
+
+        if (!(webhook.PaymentIntent.Metadata.TryGetValue("paymentId", out var paymentIdString) && Guid.TryParse(paymentIdString, out var paymentId)))
         {
             throw new Exception("Invalid payment ID");
         }
@@ -94,11 +107,11 @@ public class PaymentService
             throw new Exception("Payment not found");
         }
 
-        if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+        if (webhook.StripeEvent.Type == EventTypes.PaymentIntentSucceeded)
         {
             payment.MarkAsCompleted();
         }
-        else if (stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
+        else if (webhook.StripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
         {
             payment.MarkAsFailed();
         }

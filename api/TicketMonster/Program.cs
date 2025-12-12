@@ -1,8 +1,11 @@
 using System.Text;
+using MassTransit;
+using MassTransit.SqlTransport.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using TicketMonster.Consumers;
 using TicketMonster.Domain;
 using TicketMonster.Repositories;
 using TicketMonster.Services;
@@ -31,6 +34,30 @@ builder.Services.AddAuthentication(options =>
                 )
             };
         });
+
+builder.Services.AddOptions<SqlTransportOptions>()
+    .Configure(options =>
+    {
+        options.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new NullReferenceException("DefaultConnection");
+        options.Schema = "masstransit";
+    });
+
+builder.Services.AddPostgresMigrationHostedService(x =>
+{
+    x.CreateDatabase = false;
+    x.CreateSchema = true;
+    x.CreateInfrastructure = true;
+});
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<StripeWebhookConsumer>();
+
+    x.UsingPostgres((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+        cfg.AutoStart = true; 
+    });
+});
 
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddIdentityCore<UserEntity>()
