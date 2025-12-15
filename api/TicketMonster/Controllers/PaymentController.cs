@@ -43,7 +43,7 @@ public class PaymentController : ControllerBase
             await _paymentService.ValidatePaymentWebhookAsync(json, signature);
             return Ok();
         }
-        catch
+        catch(Exception ex)
         {
             return BadRequest();
         }

@@ -5,6 +5,6 @@ namespace TicketMonster.DTOs;
 
 public class StripeWebhookDTO
 {
-    public PaymentIntent PaymentIntent { get; set; }
-    public Event StripeEvent { get; set; }
+    public string PaymentId { get; set; }
+    public string EventType { get; set; }
 }

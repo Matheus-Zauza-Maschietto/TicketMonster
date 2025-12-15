@@ -90,13 +90,17 @@ public class PaymentService
 
         PaymentIntent paymentIntent = (PaymentIntent)stripeEvent.Data.Object;
 
-        await _publishEndpoint.Publish((paymentIntent, stripeEvent));
+        await _publishEndpoint.Publish(new StripeWebhookDTO()
+        {
+            PaymentId = paymentIntent.Metadata["paymentId"],
+            EventType = stripeEvent.Type,
+        });
     }
 
     public async Task ProcessPaymentAsync(StripeWebhookDTO webhook)
     {
 
-        if (!(webhook.PaymentIntent.Metadata.TryGetValue("paymentId", out var paymentIdString) && Guid.TryParse(paymentIdString, out var paymentId)))
+        if (!Guid.TryParse(webhook.PaymentId, out var paymentId))
         {
             throw new Exception("Invalid payment ID");
         }
@@ -107,11 +111,11 @@ public class PaymentService
             throw new Exception("Payment not found");
         }
 
-        if (webhook.StripeEvent.Type == EventTypes.PaymentIntentSucceeded)
+        if (webhook.EventType == EventTypes.PaymentIntentSucceeded)
         {
             payment.MarkAsCompleted();
         }
-        else if (webhook.StripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
+        else if (webhook.EventType == EventTypes.PaymentIntentPaymentFailed)
         {
             payment.MarkAsFailed();
         }

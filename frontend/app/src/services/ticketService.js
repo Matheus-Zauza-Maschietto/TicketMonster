@@ -55,9 +55,13 @@ export const ticketService = {
 
     const ticket = await response.json();
     
-    // Ensure clientSecret is present
+    // Ensure clientSecret is present and is a PaymentIntent
     if (!ticket.clientSecret) {
       throw new Error('No payment secret received from server');
+    }
+    
+    if (!ticket.clientSecret.startsWith('pi_')) {
+      throw new Error('Invalid payment configuration. Expected PaymentIntent secret.');
     }
     
     return ticket;
