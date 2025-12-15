@@ -50,7 +50,7 @@ public class ShowService
         UserEntity? user = await _context.Users.FindAsync(userId);
         if (user == null) throw new Exception("User not found");
 
-        var show = new ShowEntity(request.Title, request.Singer, request.PresentationDate, request.MaxTicketQuantity, user);
+        var show = new ShowEntity(request.Title, request.Singer, request.PresentationDate, request.TicketPrice, request.MaxTicketQuantity, user);
 
         _context.Shows.Add(show);
         await _context.SaveChangesAsync();
@@ -71,7 +71,7 @@ public class ShowService
         var show = await _context.Shows.FindAsync(id);
         if (show == null) return null;
 
-        show.UpdateDetails(request.Title, request.Singer, request.PresentationDate, request.MaxTicketQuantity);
+        show.UpdateDetails(request.Title, request.Singer, request.TicketPrice, request.PresentationDate, request.MaxTicketQuantity);
 
         await _context.SaveChangesAsync();
 

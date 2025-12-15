@@ -13,6 +13,7 @@ function ShowDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isCreatingTicket, setIsCreatingTicket] = useState(false);
 
   useEffect(() => {
     fetchShowDetails();
@@ -98,11 +99,26 @@ function ShowDetails() {
 
   const handleBuyTicket = async () => {
     try {
+      setIsCreatingTicket(true);
+      setError('');
+      
       const ticket = await ticketService.createTicket(id);
-      navigate(`/payment/${id}`, { state: { clientSecret: ticket.clientSecret } });
+      
+      if (!ticket || !ticket.clientSecret) {
+        throw new Error('Payment configuration failed. Please try again.');
+      }
+      
+      navigate(`/payment/${id}`, { 
+        state: { 
+          clientSecret: ticket.clientSecret,
+          ticketId: ticket.id 
+        } 
+      });
     } catch (err) {
-      setError('Erro ao processar a compra. Tente novamente.');
+      setError(err.message || 'Erro ao processar a compra. Tente novamente.');
       console.error('Erro ao criar ticket:', err);
+    } finally {
+      setIsCreatingTicket(false);
     }
   };
 
@@ -162,18 +178,21 @@ function ShowDetails() {
               <button
                 className="btn-success"
                 onClick={handleBuyTicket}
+                disabled={isCreatingTicket}
               >
-                Comprar Ingresso
+                {isCreatingTicket ? 'Processando...' : 'Comprar Ingresso'}
               </button>
               <button
                 className="btn-primary"
                 onClick={() => setIsEditing(true)}
+                disabled={isCreatingTicket}
               >
                 Editar
               </button>
               <button
                 className="btn-danger"
                 onClick={handleDelete}
+                disabled={isCreatingTicket}
               >
                 Deletar
               </button>

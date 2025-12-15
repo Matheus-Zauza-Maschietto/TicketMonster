@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5125/api';
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -32,7 +32,7 @@ const showService = {
         title: showData.title,
         ticketPrice: parseFloat(showData.ticketPrice),
         singer: showData.singer,
-        presentationDate: showData.presentationDate,
+        presentationDate: new Date(showData.presentationDate).toISOString(),
         maxTicketQuantity: parseInt(showData.maxTicketQuantity),
       }, {
         headers: getAuthHeader(),
@@ -51,7 +51,10 @@ const showService = {
         singer: showData.singer,
         presentationDate: showData.presentationDate,
         maxTicketQuantity: parseInt(showData.maxTicketQuantity),
+      }, {
+        headers: getAuthHeader(),
       });
+
       return response.data;
     } catch (error) {
       throw error;

@@ -17,6 +17,13 @@ export default function Payment() {
   const [error, setError] = useState('');
   const clientSecret = location.state?.clientSecret;
 
+  useEffect(() => {
+    // Validate clientSecret on mount
+    if (!clientSecret) {
+      setError('Unable to load payment form. Missing payment configuration.');
+    }
+  }, [clientSecret]);
+
   if (loading) {
     return <div className="payment-container"><p>Loading payment form...</p></div>;
   }

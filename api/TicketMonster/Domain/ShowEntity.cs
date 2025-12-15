@@ -19,7 +19,7 @@ public sealed class ShowEntity
 
     private ShowEntity() { }
 
-    public ShowEntity(string title, string singer, DateTime presentationDate, long maxTicketQuantity, UserEntity userCreator)
+    public ShowEntity(string title, string singer, DateTime presentationDate, decimal ticketPrice, long maxTicketQuantity, UserEntity userCreator)
     {
         Id = Guid.NewGuid();
         Title = title;
@@ -28,13 +28,15 @@ public sealed class ShowEntity
         MaxTicketQuantity = maxTicketQuantity;
         UserCreator = userCreator;
         UserCreatorId = userCreator.Id;
+        TicketPrice = ticketPrice;
     }
 
-    public void UpdateDetails(string title, string singer, DateTime presentationDate, long maxTicketQuantity)
+    public void UpdateDetails(string title, string singer, decimal ticketPrice, DateTime presentationDate, long maxTicketQuantity)
     {
         Title = title;
         Singer = singer;
         PresentationDate = presentationDate;
         MaxTicketQuantity = maxTicketQuantity;
+        TicketPrice = ticketPrice;
     }
 }

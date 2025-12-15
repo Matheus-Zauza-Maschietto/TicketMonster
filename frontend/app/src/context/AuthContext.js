@@ -22,10 +22,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Verificar autenticação ao montar o componente (ao recarregar a página)
   useEffect(() => {
     const initializeAuth = () => {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('token');
       const savedUser = localStorage.getItem('user');
       
       if (token && savedUser) {
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'accessToken') {
+      if (e.key === 'token') {
         setIsAuthenticated(authService.isAuthenticated());
         const savedUser = localStorage.getItem('user');
         setUser(savedUser ? JSON.parse(savedUser) : null);

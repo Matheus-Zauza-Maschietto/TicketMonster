@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -33,9 +33,8 @@ export const authService = {
   login: async (email, password) => {
     try {
       const response = await api.post('/api/auth/login', { email, password });
-      if (response.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('refreshToken', response.data.refreshToken);
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
       }
       return response.data;
     } catch (error) {
@@ -44,16 +43,15 @@ export const authService = {
   },
 
   logout: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('token');
   },
 
   getToken: () => {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem('token');
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem('accessToken');
+    return !!localStorage.getItem('token');
   },
 };
 

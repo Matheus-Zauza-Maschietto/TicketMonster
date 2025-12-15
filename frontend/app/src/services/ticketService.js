@@ -49,10 +49,18 @@ export const ticketService = {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create ticket');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to create ticket');
     }
 
-    return response.json();
+    const ticket = await response.json();
+    
+    // Ensure clientSecret is present
+    if (!ticket.clientSecret) {
+      throw new Error('No payment secret received from server');
+    }
+    
+    return ticket;
   },
 
   deleteTicket: async (id) => {
